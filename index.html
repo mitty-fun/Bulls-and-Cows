@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="game" class="container text-center py-5">
+
+        <h1 class="text-center">Bulls and Cows</h1>
+
+        <div class="my-2">
+            <button class="btn btn-primary" @click="reset">reset</button>
+            <button class="btn btn-info" @click="resolve">resolve</button>
+        </div>
+
+        <div class="my-2">
+            <div class="input-group">
+                <input type="number" class="form-control" placeholder="1234" v-model="input">
+                <div class="input-group-append">
+                    <button class="btn btn-warning" @click="guess">guess</button>
+                </div>
+            </div>
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">guess</th>
+                <th scope="col">A</th>
+                <th scope="col">B</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="log, idx in logs">
+                <th>{{idx + 1}}</th>
+                <td>{{log.g}}</td>
+                <td>{{log.a}}</td>
+                <td>{{log.b}}</td>
+              </tr>
+            </tbody>
+          </table>
+
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+
+        const game = new Game()
+
+        function resolve() {
+            let arr = [];
+            for (let i = 123; i <= 9876; i++) {
+                let s = i > 999 ? i.toString() : '0' + i.toString()
+                arr.push(s);
+            }
+
+            arr = arr.filter(s => {
+                return s[0] !== s[1] && s[0] !== s[2] && s[0] !== s[3] &&
+                    s[1] !== s[2] && s[1] !== s[3] && s[2] !== s[3]
+            })
+
+            while (arr.length > 0) {
+                let g = arr.pop()
+                let result = game.guess(g)
+
+                if (result.a === 4) break
+
+                arr = arr.filter(s => {
+                    let d = Game.diff(s.split(''), g.split(''))
+                    return d.a === result.a && d.b === result.b
+                })
+            }
+        }
+
+        new Vue({
+            el: '#game',
+            data() {
+                return {
+                    game,
+                    answer: game.answer,
+                    logs: game.logs,
+                    input: ''
+                }
+            },
+            methods: {
+                reset() {
+                    game.newGame()
+                },
+                guess() {
+                    game.guess(this.input)
+                },
+                resolve,
+            }
+        })
+    </script>
+</body>
+
+</html>
